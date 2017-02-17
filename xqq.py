@@ -39,7 +39,7 @@ class Xiangqi():
         self.handt=hand.Hand(self,(900,20),handimg["black"],5,handcon2,self.posOK2,1)
         self.allhand=[self.hands,self.handt]
         self.chesses=[]
-
+#everthing is important
         self.game_phase="picking1"  
         self.a=-0.25
         self.font=pygame.font.Font(None,30)
