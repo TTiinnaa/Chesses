@@ -23,14 +23,21 @@ class Chess(object):
 
 
 	def is_out(self):
-		if self.xx<-22.5:
+		
+		if self.x<-22.5:
+			print("1")
 			return True
-		if self.xx>game.screen.get_rect().width+22.5:
+		if self.x>self.game.screen.get_rect().width+22.5:
+			print("2")
 			return True
-		if self.yy<-22.5:
+			
+		if self.y<-22.5:
+			print("3")
 			return True
-		if self.yy>game.screen.get_rect().hight+22.5:
+		if self.y>self.game.screen.get_rect().height+22.5:
+			print("4")
 			return True
+		return False
 
 
 

@@ -1,5 +1,5 @@
 import pygame
-import hand,chessp,math,util
+import hand,chessps,math,util
 from sets import Set
 def deg(num):
     return(num/(2*math.pi)*360)
@@ -23,7 +23,7 @@ class Xiangqi():
         # Create empty pygame surface.
         background = pygame.Surface(screen.get_size())
         # Fill the background white color.
-        background.fill((0, 50, 255))
+        background.fill((255, 255, 255))
         # Convert Surface object to make blitting faster.
         self.background = background.convert()
         # Copy background to screen (position (0, 0) is upper left corner).
@@ -45,7 +45,7 @@ class Xiangqi():
         self.font=pygame.font.Font(None,30)
         for s in range(0,2):
             for i in range(0,12):
-                self.chesses.append(chessp.Chess(self,(s*1450+20,100+i*50),5,self.chesspic,5,s,i))
+                self.chesses.append(chessps.Chess(self,(s*1450+20,100+i*50),5,self.chesspic,5,s,i))
 
         self.testpos=[(1220, 200,840, 172,1175,100),(200,100,300,250,-80,-80),(200,200,300,300,250,260)]
         
@@ -211,6 +211,12 @@ class Xiangqi():
                     return c,cc
         #import pdb;pdb.set_trace()
         return None
+    def remove_out(self):
+        to_remove=list(filter(lambda x: x.is_out(), self.chesses))
+        #import pdb;pdb.set_trace()
+        for c in to_remove:
+
+            self.chesses.remove(c)
 
 
     def playgame(self):
@@ -260,7 +266,7 @@ class Xiangqi():
                     key_down=None
 
             # Print framerate and playtime in titlebar.
-            text = "FPS: {0:.2f}   Playtime: {1:.2f}".format(clock.get_fps(), playtime)+"hello world   "+str(self.handt.debugtext)
+            text = "FPS: {0:.2f}   Playtime: {1:.2f}".format(clock.get_fps(), playtime)+"hello world   "+str(len(self.chesses))
             pygame.display.set_caption(text)            
             
             if self.game_phase=="picking1" or self.game_phase=="shooting1":
@@ -309,7 +315,7 @@ class Xiangqi():
 
                 self.game_phase="shooting1"
 
-            
+            self.remove_out()
             pygame.display.flip()
 
         # Finish Pygame.  
