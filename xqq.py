@@ -23,7 +23,7 @@ class Xiangqi():
         # Create empty pygame surface.
         background = pygame.Surface(screen.get_size())
         # Fill the background white color.
-        background.fill((0, 255, 255))
+        background.fill((0, 0, 255))
         # Convert Surface object to make blitting faster.
         self.background = background.convert()
         # Copy background to screen (position (0, 0) is upper left corner).
