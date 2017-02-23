@@ -57,7 +57,8 @@ class Chess(object):
 			if self.v<0:
 				self.v=0
 				self.shot=False	
-
+			#else:
+				#print(self.number,self.v,self.angle)
 
 
 

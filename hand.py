@@ -145,6 +145,7 @@ class Hand(object):
 		if 30 < util.distance((chess.x,chess.y),(self.x+self.xx,self.y+self.yy)) < 90 :
 			#self.shootable==True
 			return True
+			
 		else:
 			#self.shootable==False
 			return False

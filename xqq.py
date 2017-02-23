@@ -48,7 +48,7 @@ class Xiangqi():
                 self.chesses.append(chessps.Chess(self,(s*1450+20,100+i*50),5,self.chesspic,5,s,i))
 
         self.testpos=[(1220, 200,840, 172,1175,100),(200,100,300,250,-80,-80),(200,200,300,300,250,260)]
-        
+        self.outchess=[]
     def is_pick(self):
         return self.game_phase == "picking1" or self.game_phase == "picking2"
 
@@ -59,15 +59,19 @@ class Xiangqi():
         inrange=[]
         for c in self.chesses:
 
-                if hand.can_shoot(c):
+                if hand.can_shoot(c) and c.v==0:
+                    #print("canshoot is true")
                     hand.drawshootline(c)
+
                     c.angle=hand.find_shootingangle(c)
                         #print(c.angle)
                     if c.angle!=None:
                         
 
                         inrange.append(c)
+
         if hand.shoot and inrange:
+            print("aaaaashot")
             closer=inrange[0]
             closerdis=0
             for cc in inrange:
@@ -80,7 +84,7 @@ class Xiangqi():
             closer.v=int(1/hand.linelengh*800)
 
             closer.shot=True
-            print("shoot hand chess",hand.x,hand.y,closer.x,closer.y,hand,self.game_phase)
+            print("shoot hand chess",hand.x,hand.y,closer.x,closer.y,self.game_phase)
 
             if self.game_phase=="shooting1":
 
@@ -126,7 +130,7 @@ class Xiangqi():
 
     def bounce(self,c1,c2):
         #print("c1 cordinante",c1.x,c1.y,c1.angle,c1.v,"c2 cordinate",c2.x,c2.y,c2.angle,c2.v)
-        #import pdb;pdb.set_trace()
+        
 
 
         try:
@@ -165,12 +169,14 @@ class Xiangqi():
         c1.angle=newc1angle
         c2.angle=newc2angle
         c1.shot=True
+        
         c2.shot=True
+
         #import pdb;pdb.set_trace()
         if util.distance((c1.x,c1.y),(c2.x,c2.y))<45:
             #import pdb;pdb.set_trace()
-            shiftx=46*math.cos(c2.angle)
-            shifty=46*math.sin(c2.angle)
+            shiftx=50*math.cos(c2.angle)
+            shifty=50*math.sin(c2.angle)
             c2.x=c1.x+shiftx
             c2.y=c1.y+shifty
             #print("The chesses that are too close should be seperated",c1.number,c2.number)
@@ -207,7 +213,7 @@ class Xiangqi():
                 if self.collide(c,cc):
                     self.calledc.add(c)
                     self.calledc.add(cc)
-                    
+                    #print("alalla")
                     return c,cc
         #import pdb;pdb.set_trace()
         return None
@@ -217,6 +223,30 @@ class Xiangqi():
         for c in to_remove:
 
             self.chesses.remove(c)
+            self.outchess.append(c)
+
+    def grave(self):
+        one=[]
+        two=[]           
+        pygame.font.init()
+        myfont = pygame.font.SysFont("Comic Sans MS", 30)
+        for c in self.outchess:
+            if c.side==0:
+                one.append(c)
+            if c.side==1:
+                two.append(c)
+        if one:
+            for c in range(0,len(one)):
+                textsurface = myfont.render(str(one[c].number), False, (0,0,0))
+                self.screen.blit(textsurface,(30*c,5))
+        if two:            
+            for c in range(0,len(two)):
+                textsurface = myfont.render(str(two[c].number), False, (0,0,0))
+                self.screen.blit(textsurface,(self.screen.get_rect().width-30*(c+1),5))
+
+
+
+
 
 
     def playgame(self):
@@ -233,13 +263,13 @@ class Xiangqi():
         # How many seconds the "game" is played.
         playtime = 0.0
         key_down=None
-        """
-        c1=self.chesses[9]
-        c2=self.chesses[10]
+        '''
+        c1=self.chesses[13]
+        c2=self.chesses[0]
         c1.x,c1.y,c2.x,c2.y,self.handt.x,self.handt.y=self.testpos[0]
-        """
-        
-        self.hands.x,self.hands.y=-80,-80
+        self.handt.angle=150
+        self.hands.x,self.hands.y=680,60
+        '''
         while mainloop:
 
             screen.blit(self.background, (0,0))
@@ -271,13 +301,14 @@ class Xiangqi():
             
             if self.game_phase=="picking1" or self.game_phase=="shooting1":
                 self.hands.update(key_down)
+                
             if self.game_phase=="picking2" or self.game_phase=="shooting2":
                 self.handt.update(key_down)
-
+            
             self.hands.draw()
             self.handt.draw()
 
-            self.forget_bounced()
+            #self.forget_bounced()
             if self.game_phase=="shooting1":
                 self.can_i_be_shot(self.hands)
 
@@ -298,16 +329,17 @@ class Xiangqi():
                             #print(tocollide[0].number,self.tocollide[1].number)
                             if self.tocollide[0].v>self.tocollide[1].v:
                                 self.bounce(self.tocollide[0],self.tocollide[1])
+                                
                             else:
                                 self.bounce(self.tocollide[1],self.tocollide[0])
+                                
                             self.tocollide=self.find_collide()
 
 
 
 
             for i in self.chesses:
-             #   i.movechess(milliseconds)
-
+             #i.movechess(milliseconds)
                 i.draw()
             self.display_score()
 
@@ -316,7 +348,10 @@ class Xiangqi():
                 self.game_phase="shooting1"
 
             self.remove_out()
+
+            self.grave()
             pygame.display.flip()
+
 
         # Finish Pygame.  
         pygame.quit()
