@@ -1,5 +1,5 @@
 import pygame
-import hand,chessps,math,util
+import hand,chessps,math,util,button
 from sets import Set
 def deg(num):
     return(num/(2*math.pi)*360)
@@ -35,8 +35,8 @@ class Xiangqi():
         handcon1={"up":pygame.K_w,"down":pygame.K_s,"left":pygame.K_a,"right":pygame.K_d,"pick":pygame.K_SPACE,"counter_c":pygame.K_g,"clock":pygame.K_h,"added_degree":-2.2}
         handcon2={"up":pygame.K_UP,"down":pygame.K_DOWN,"left":pygame.K_LEFT,"right":pygame.K_RIGHT,"pick":pygame.K_RETURN,"counter_c":pygame.K_COMMA,"clock":pygame.K_PERIOD,"added_degree":0}
 
-        self.hands=hand.Hand(self,(400,120),handimg["white"],5,handcon1,self.posOK1,0)
-        self.handt=hand.Hand(self,(900,20),handimg["black"],5,handcon2,self.posOK2,1)
+        self.hands=hand.Hand(self,(40,120),handimg["white"],5,handcon1,self.posOK1,0)
+        self.handt=hand.Hand(self,(1240,120),handimg["black"],5,handcon2,self.posOK2,1)
         self.allhand=[self.hands,self.handt]
         self.chesses=[]
 #everthing is important
@@ -49,6 +49,9 @@ class Xiangqi():
 
         self.testpos=[(1220, 200,840, 172,1175,100),(200,100,300,250,-80,-80),(200,200,300,300,250,260)]
         self.outchess=[]
+        self.gameover=False
+        self.buttons=[]
+        #buttonone = button.Button("button.png",self,(10,10),self.button_clicked)
     def is_pick(self):
         return self.game_phase == "picking1" or self.game_phase == "picking2"
 
@@ -71,7 +74,7 @@ class Xiangqi():
                         inrange.append(c)
 
         if hand.shoot and inrange:
-            print("aaaaashot")
+            #print("aaaaashot")
             closer=inrange[0]
             closerdis=0
             for cc in inrange:
@@ -235,17 +238,44 @@ class Xiangqi():
                 one.append(c)
             if c.side==1:
                 two.append(c)
-        if one:
-            for c in range(0,len(one)):
+        for c in range(0,len(one)):
                 textsurface = myfont.render(str(one[c].number), False, (0,0,0))
                 self.screen.blit(textsurface,(30*c,5))
-        if two:            
-            for c in range(0,len(two)):
+        for c in range(0,len(two)):
                 textsurface = myfont.render(str(two[c].number), False, (0,0,0))
                 self.screen.blit(textsurface,(self.screen.get_rect().width-30*(c+1),5))
+        if len(one)==12:
+            self.gameover="left"
+        if len(two)==12:
+            self.gameover="right"
 
 
+    def display_who_won(self):
+        pygame.font.init()
+        myfont = pygame.font.SysFont("Comic Sans MS", 60)
+        if self.gameover=="left":
+            textsurface1 = myfont.render("you lost!", False, (0,0,0))
+            self.screen.blit(textsurface1,(self.screen.get_rect().width/4,self.screen.get_rect().height/2))
+            textsurface2 = myfont.render("you won!", False, (0,0,0))
+            self.screen.blit(textsurface2,(self.screen.get_rect().width/4*3,self.screen.get_rect().height/2))
+        if self.gameover=="right":
+            textsurface1 = myfont.render("you won!", False, (0,0,0))
+            self.screen.blit(textsurface1,(self.screen.get_rect().width/4,self.screen.get_rect().height/2))
+            textsurface2 = myfont.render("you lost!", False, (0,0,0))
+            self.screen.blit(textsurface2,(self.screen.get_rect().width/4*3,self.screen.get_rect().height/2))
 
+    def button_clicked(self):
+        self.game_phase="picking1"
+        self.hands.x,self.hands.y=(40,120)
+        self.handt.x,self.handt.y=(1240,120)
+        self.chesses=[]
+        self.outchess=[]
+        self.gameover=False
+        
+        self.allhand=[self.hands,self.handt]
+        for s in range(0,2):
+            for i in range(0,12):
+                self.chesses.append(chessps.Chess(self,(s*1450+20,100+i*50),5,self.chesspic,5,s,i))
 
 
 
@@ -315,7 +345,22 @@ class Xiangqi():
             elif self.game_phase=="shooting2":
                 self.can_i_be_shot(self.handt)
 
-            
+
+
+            if pygame.mouse.get_pressed() == (1,0,0):
+                    self.buttonstoremove=[]
+                    for b in self.buttons:
+                        b.on_click(pygame.mouse.get_pos())
+                    for b in self.buttonstoremove:
+                        self.buttons.remove(b)
+
+            for b in self.buttons:
+                b.display()
+
+
+
+
+
             for c in range(10):
                 for i in self.chesses:
                     i.movechess(milliseconds/10.0)
@@ -350,6 +395,14 @@ class Xiangqi():
             self.remove_out()
 
             self.grave()
+            if self.gameover :
+                self.display_who_won()
+                if self.game_phase != "game_over":
+                        self.game_phase="game_over"
+                        buttonone = button.Button("button.png",self,(self.screen.get_rect().width/2,self.screen.get_rect().height/2),self.button_clicked)
+
+                
+
             pygame.display.flip()
 
 
