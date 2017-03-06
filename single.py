@@ -412,11 +412,16 @@ class Xiangqi():
                  self.game_phase="picking1"
 
             if self.game_phase=="shooting2":
+                self.shooter=self.find_shooter(self.find_tagret)
 
                 self.handt.update(self.find_final_pos(self.find_shooter(self.find_tagret),self.find_tagret()))
+                '''
                 if self.handt.can_shoot(self.find_shooter(self.find_tagret))==False:
                     if self.handt.find_shootingangle(self.find_shooter(self.find_tagret))==None:
                         self.handt.spin()
+                    else:
+                        print(self.find_shooter(self.find_tagret).number)
+                        import pdb;pdb.set_trace()'''
 
             
             self.hands.draw()

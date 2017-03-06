@@ -70,7 +70,11 @@ class Ai(object):
 				self.x=newx
 				self.y=newy
 				if stop:
-					self.handle_shooting()
+					if self.find_shootingangle(self.game.shooter) is None:
+						self.spin()
+					else:
+						self.handle_shooting()
+					
 
 				
 				
