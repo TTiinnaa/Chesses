@@ -1,5 +1,5 @@
 import pygame
-import hand,chessps,math,util,button
+import hand,chessps,math,util,button,ai
 from sets import Set
 def deg(num):
     return(num/(2*math.pi)*360)
@@ -36,7 +36,7 @@ class Xiangqi():
         handcon2={"up":pygame.K_UP,"down":pygame.K_DOWN,"left":pygame.K_LEFT,"right":pygame.K_RIGHT,"pick":pygame.K_RETURN,"counter_c":pygame.K_COMMA,"clock":pygame.K_PERIOD,"added_degree":0}
 
         self.hands=hand.Hand(self,(40,120),handimg["white"],5,handcon1,self.posOK1,0)
-        self.handt=hand.Hand(self,(1240,120),handimg["black"],5,handcon2,self.posOK2,1)
+        self.handt=ai.Ai(self,(1240,120),handimg["black"],5,handcon2,self.posOK2,1)
         self.allhand=[self.hands,self.handt]
         self.chesses=[]
 #everthing is important
@@ -244,10 +244,12 @@ class Xiangqi():
         for c in range(0,len(two)):
                 textsurface = myfont.render(str(two[c].number), False, (0,0,0))
                 self.screen.blit(textsurface,(self.screen.get_rect().width-30*(c+1),5))
-        if len(one)==1:
+        if len(one)==12:
             self.gameover="left"
-        if len(two)==1:
+        if len(two)==12:
             self.gameover="right"
+
+
 
 
     def display_who_won(self):
@@ -271,11 +273,85 @@ class Xiangqi():
         self.chesses=[]
         self.outchess=[]
         self.gameover=False
-        
+        self.handt,angle=0
         self.allhand=[self.hands,self.handt]
         for s in range(0,2):
             for i in range(0,12):
                 self.chesses.append(chessps.Chess(self,(s*1450+20,100+i*50),5,self.chesspic,5,s,i))
+
+
+
+
+
+
+    def find_tagret(self):
+        if self.game_phase=="shooting2":
+            closest=None
+            closedis=0
+            for c in self.chesses:
+                if c.side==0:
+                    if c.x>closedis:
+                        closedis=c.x
+                        closest=c
+                    if c.y>closedis:
+                        closedis=c.y
+                        closest=c
+            #print(closest)
+            return closest
+
+        else:
+            import pdb;pdb.set_trace()
+
+    def find_shooter(self,tt):
+        t=tt()
+        #import pdb;pdb.set_trace()
+        for c in self.chesses:
+            closest=None
+            closedis=10000
+            if c.side==1 and c!=t:
+                if util.distance((c.x,c.y),(t.x,t.y))<closedis:
+                    closedis=util.distance((c.x,c.y),(t.x,t.y))
+                    closest=c
+        return closest
+    def find_final_pos(self,s,t):
+
+        
+        
+        k=(s.y-t.y)/(s.x-t.x)
+        b=s.y-k*s.x
+
+        if t.x>s.x:
+            if t.y>s.y:
+                newx=s.x-40
+                newy=k*newx+b
+            elif t.y==s.y:
+                newx=s.x-40
+                newy=s.y
+            else:
+                newx=s.x-40
+                newy=k*newx+b
+        elif t.x==s.y:
+            if t.y>s.y:
+                newx=s.x
+                newy=s.y-40
+
+            else:
+                newx=s.x
+                newy=s.y+40           
+
+        else:
+            if t.y>s.y:
+                newx=s.x+40
+                newy=k*newx+b
+            elif t.y==s.y:
+                newx=s.x+40
+                newy=s.y
+            else:
+                newx=s.x+40
+                newy=k*newx+b
+        return((newx,newy))
+
+
 
 
 
@@ -331,9 +407,17 @@ class Xiangqi():
             
             if self.game_phase=="picking1" or self.game_phase=="shooting1":
                 self.hands.update(key_down)
-                
-            if self.game_phase=="picking2" or self.game_phase=="shooting2":
-                self.handt.update(key_down)
+
+            if self.game_phase=="picking2":
+                 self.game_phase="picking1"
+
+            if self.game_phase=="shooting2":
+
+                self.handt.update(self.find_final_pos(self.find_shooter(self.find_tagret),self.find_tagret()))
+                if self.handt.can_shoot(self.find_shooter(self.find_tagret))==False:
+                    if self.handt.find_shootingangle(self.find_shooter(self.find_tagret))==None:
+                        self.handt.spin()
+
             
             self.hands.draw()
             self.handt.draw()
@@ -414,5 +498,5 @@ class Xiangqi():
 
 game=Xiangqi()
 
-#game.playgame()
+game.playgame()
 
