@@ -6,7 +6,6 @@ class Ai(object):
 		self.imagedata=imagedata
 		image1=pygame.image.load(imagedata[0])
 		image2=pygame.image.load(imagedata[1])
-		
 		self.x=x
 		self.y=y
 		self.screen=game.screen
@@ -14,7 +13,6 @@ class Ai(object):
 		self.display=(image1,image2)
 		self.pick=False
 		self.counter=0
-
 		self.xx,self.yy=image1.get_rect().center
 		#print (str(self.xx)+"   "+str(self.yy))
 		self.game=game
@@ -31,23 +29,20 @@ class Ai(object):
 		self.moves=0
 
 
-
-
-
-
-
-	def update(self,final_pos):
+	def update(self,final_pos,t,s):
 			stop=True
+			tar=t()
+			
 			newx=self.x
 
 			newy=self.y
 
 			x=int(final_pos[0]-(self.display[0].get_rect().width/2))
 			y=int(final_pos[1]-(self.display[1].get_rect().height/2))
-
+			
 			#print(final_pos[0]-(self.display[0].get_rect().width/2),final_pos[1]-(self.display[1].get_rect().height/2),newx,newy)
 			#import pdb;pdb.set_trace()
-
+			
 			if newy>y and (newy-y)>self.sp:
 				newy=self.y-self.sp
 				stop=False
@@ -63,6 +58,7 @@ class Ai(object):
 
 			elif newx<x and (x-newx)>self.sp:
 				newx=self.x+self.sp
+
 				stop=False
 
 
@@ -70,15 +66,22 @@ class Ai(object):
 				self.x=newx
 				self.y=newy
 				if stop:
+					self.x=x
+					self.y=y
+					#import pdb;pdb.set_trace()
+					print(s.number,s.side,s.x,s.y,tar.number,tar.side,tar.x,tar.y,x,y,self.x,self.y)
 					if self.find_shootingangle(self.game.shooter) is None:
 						self.spin()
+
 					else:
+						#import pdb;pdb.set_trace()
 						self.handle_shooting()
+
 					
 
 				
 				
-
+			self.sp=5
 			if self.picked is not None:
 				self.picked.x=self.x+self.xx
 				self.picked.y=self.y+self.yy

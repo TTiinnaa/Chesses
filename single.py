@@ -96,6 +96,7 @@ class Xiangqi():
 
                 self.game_phase="shooting1"
                 #import pdb;pdb.set_trace()
+            hand.shoot=False
             inrange=[]
             return "hah"
 
@@ -286,6 +287,7 @@ class Xiangqi():
 
     def find_tagret(self):
         if self.game_phase=="shooting2":
+
             closest=None
             closedis=0
             for c in self.chesses:
@@ -297,6 +299,8 @@ class Xiangqi():
                         closedis=c.y
                         closest=c
             #print(closest)
+            if closest is None:
+                import pdb;pdb.set_trace()
             return closest
 
         else:
@@ -317,39 +321,31 @@ class Xiangqi():
 
         
         
-        k=(s.y-t.y)/(s.x-t.x)
-        b=s.y-k*s.x
+        k=(s.y-t.y)/(s.x-t.x)#c 1.225
+        bb=s.y-k*s.x#c 575.5
 
-        if t.x>s.x:
-            if t.y>s.y:
-                newx=s.x-40
-                newy=k*newx+b
-            elif t.y==s.y:
-                newx=s.x-40
-                newy=s.y
-            else:
-                newx=s.x-40
-                newy=k*newx+b
-        elif t.x==s.y:
-            if t.y>s.y:
-                newx=s.x
-                newy=s.y-40
+        a=k**2+1#c 2.500625
+        b=-2*s.x-2*k*s.x*k#c -302.575625
+        c=s.x*s.x+(k*s.x)**2-1600#c 7552.912
+        #print(a,b,c)
+        
+        x=(-b+math.sqrt(b*b-4*a*c))/(2*a)
+        
+        xx=(-b-math.sqrt(b*b-4*a*c))/(2*a)
 
-            else:
-                newx=s.x
-                newy=s.y+40           
+        y=x*k+bb
+        yy=xx*k+bb
 
-        else:
-            if t.y>s.y:
-                newx=s.x+40
-                newy=k*newx+b
-            elif t.y==s.y:
-                newx=s.x+40
-                newy=s.y
-            else:
-                newx=s.x+40
-                newy=k*newx+b
-        return((newx,newy))
+        d1=util.distance((x,y),(t.x,t.y))
+        d2=util.distance((xx,yy),(t.x,t.y))
+        if d2>d1:
+            print("hahah")
+            x=xx
+            y=yy
+
+        #print(x,y,x,k,b)
+        
+        return((x,y))
 
 
 
@@ -414,7 +410,8 @@ class Xiangqi():
             if self.game_phase=="shooting2":
                 self.shooter=self.find_shooter(self.find_tagret)
 
-                self.handt.update(self.find_final_pos(self.find_shooter(self.find_tagret),self.find_tagret()))
+                self.handt.update(self.find_final_pos(self.find_shooter(self.find_tagret),self.find_tagret()),self.find_tagret,self.shooter)
+
                 '''
                 if self.handt.can_shoot(self.find_shooter(self.find_tagret))==False:
                     if self.handt.find_shootingangle(self.find_shooter(self.find_tagret))==None:
